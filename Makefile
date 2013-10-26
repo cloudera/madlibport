@@ -1,6 +1,6 @@
 EIGEN=/usr/include/eigen3/
 
-SRC=-I$(EIGEN) -Imadlib/src -Imadlib/src/ports -Imadlib/src/ports/metaport -Isrc -Iudf/ -Iboost_1_54_0/boost/
+SRC=-I$(EIGEN) -Imadlib/src -Imadlib/src/ports -Imadlib/src/ports/metaport -Isrc -Iudf/
 
 all: directories objs/udf.o lib/libbismarckarray.so lib/libsvm.so lib/liblogr.so lib/liblinr.so
 

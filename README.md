@@ -12,9 +12,8 @@ models using an existing DBMS's data management and processing ability.
 
 
 Dependencies:
-yum install -y eigen3-devel.noarch
-
-Also, install boost 1.54.0
+  - eigen3 (yum install eigen3-devel.noarch, apt-get install libeigen3-dev)
+  - boost >= 1.54.0
 
 
 Code Base
@@ -23,7 +22,7 @@ This code base includes the following components.
 
 MADlib
 -----------
-There is a fork of MADlib 1.0 which has been modified for use with impala.
+This is a fork of MADlib 1.0 which has been modified for use with Impala.
 The specific changes were:
   - madlib/test with tests for the new code
   - madlib/Makefile to make the tests
