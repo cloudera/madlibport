@@ -29,6 +29,14 @@ The specific changes were:
   - madlib/src/ports/metaport which is a modified MADlib backend for main memory
 
 
+Impala UDF
+----------
+
+Included as a submodule.  After checking out the main repo, run
+
+    git submodule init
+    git submodule update
+
 
 Example
 ============
