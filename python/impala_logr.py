@@ -9,7 +9,7 @@ This creates a table where trained models are stored.
 
 
 def main():
-  # arugment parsing
+  # argument parsing
   parser = optparse.OptionParser('usage: %prog LABEL_COL FEATURE_COL [FEATURE_COL ...]')
   parser.add_option("-b", "--db", dest="database", default=None,
                         help="the database which holds data table", metavar="DB")
@@ -50,7 +50,7 @@ def main():
   step = options.step
   mu = options.mu
   label = args[0]
-  
+
   # the query which creates an array out of the feature columns
   arr = 'toarray(%s)' % (', '.join(map(lambda f: '%s.%s' % (dat_table, f), args[1:])))
 
@@ -60,7 +60,7 @@ def main():
   for i in xrange(1, options.epochs+1):
     qry.append(logr_epoch(mod_table, dat_table, label, arr, i, step=step, mu=mu))
     step = step * options.decay
-  
+
   # submit a query to to compute the loss
   # qry.append(logr_loss(mod_table, dat_table, label, arr, epoch=options.epochs))
 

@@ -19,7 +19,7 @@ int TEST_SVMinit() {
   bismarck::bytea model;
   bismarck::BismarckSVM<void*>::Init(NULL, &model);
 
-  EXPECT_EQ(model.str, NULL);
+  EXPECT_EQ(model.str == NULL, true);
   EXPECT_EQ(model.len, 0);
   return 1;
 }
@@ -70,8 +70,8 @@ int TEST_SVMpred() {
   bismarck::bytea model = {(char*)mod, 2*sizeof(double)};
   bismarck::bytea ex = {(char*)exa, 2*sizeof(double)};
   bismarck::bytea ex2 = {(char*)exa2, 2*sizeof(double)};
-  EXPECT_EQ(bismarck::SVMPredict<void*>(NULL, ex, model), true);
-  EXPECT_EQ(bismarck::SVMPredict<void*>(NULL, ex2, model), false);
+  EXPECT_EQ(bismarck::_SVMPredict<void*>(NULL, ex, model), true);
+  EXPECT_EQ(bismarck::_SVMPredict<void*>(NULL, ex2, model), false);
   return 1;
 }
 

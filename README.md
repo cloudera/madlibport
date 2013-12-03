@@ -13,8 +13,8 @@ models using an existing DBMS's data management and processing ability.
 
 Dependencies:
   - eigen3 (yum install eigen3-devel.noarch, apt-get install libeigen3-dev)
+  - impala-udf-devel
   - boost >= 1.54.0
-
 
 Code Base
 ===========
@@ -29,7 +29,6 @@ The specific changes were:
   - madlib/src/ports/metaport which is a modified MADlib backend for main memory
 
 
-
 Example
 ============
 
@@ -39,5 +38,5 @@ To run the example SVM,
 2. to register the UDFs with a database (without re-making the binaries), execute: python python/deploy.py -mp toysvm
 3. create a synthetic table of examples in the database toysvm with the table toy: python python/gen_classify_data.py toysvm toy
 4. python python/impala_svm.py lbl e0 e1 e2 --db toysvm --table toy -e 1
-5. impala-shell -q 'use toysvm; select iter, printarray(model) from history;'
+5. impala-shell -q 'use toysvm; select iter, printarray(decodearray(model)) from history;'
 

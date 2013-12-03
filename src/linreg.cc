@@ -1,9 +1,8 @@
 
 #include <cstdio>
 
-#include "udf/udf.h"
+#include <impala_udf/udf.h>
 
-using namespace impala;
 using namespace impala_udf;
 
 template <class T>
@@ -16,9 +15,6 @@ T* BismarckAllocate(FunctionContext* ctx, size_t len) {
 
 #include "bismarck.h"
 
-// impala includes
-#include "udf/udf.h"
-
 // MADlib includes
 #include "metaport/modules/linreg-inl.h"
 
@@ -29,23 +25,18 @@ T* BismarckAllocate(FunctionContext* ctx, size_t len) {
 #include "linreg.h"
 
 using namespace hazy;
-
 using namespace madlib;
-
-using namespace impala_udf;
 using namespace std;
 
 /*! \brief Initializes the UDA state with zeros
  */
 void LinrInit(FunctionContext* context, StringVal* m) {
   m->is_null = true;
-  m->len = 0;
-  m->ptr = NULL;
 }
 
 /*! \brief Updates the input state with the given value
  */
-void LinrUpdate(FunctionContext* context, const StringVal& val, const DoubleVal &y, 
+void LinrUpdate(FunctionContext* context, const StringVal& val, const DoubleVal &y,
                 StringVal* input) {
   PortAllocator pa(context);
 
@@ -62,8 +53,8 @@ void LinrUpdate(FunctionContext* context, const StringVal& val, const DoubleVal 
   size_t len_val = val.len/sizeof(double);
   double *v = (double*) val.ptr;
 
-  madlib::MemHandle<char> new_state = 
-      madlib::modules::regress::LinrTransition(pa, state, &v[0], 
+  madlib::MemHandle<char> new_state =
+      madlib::modules::regress::LinrTransition(pa, state, &v[0],
                                                      len_val, y.val);
 
   // clean up memory if the transition function re-allocated
@@ -80,6 +71,7 @@ void LinrUpdate(FunctionContext* context, const StringVal& val, const DoubleVal 
 }
 
 void LinrMerge(FunctionContext* context, const StringVal& src, StringVal* dst) {
+  if (src.is_null) return;
   if (dst->is_null) {
     // create a new dst
       new (dst) StringVal(context, src.len);
@@ -90,7 +82,7 @@ void LinrMerge(FunctionContext* context, const StringVal& src, StringVal* dst) {
   madlib::MemHandle<char> statea = {(size_t)dst->len, (char*)dst->ptr};
   madlib::MemHandle<char> stateb = {(size_t)src.len, (char*)src.ptr};
 
-  madlib::MemHandle<char> combin = 
+  madlib::MemHandle<char> combin =
       madlib::modules::regress::LinrMerge(pa, statea, stateb);
   dst->ptr = (uint8_t*) combin.ptr;
   dst->len = combin.size;
@@ -99,10 +91,9 @@ void LinrMerge(FunctionContext* context, const StringVal& src, StringVal* dst) {
 /*! \brief Computes the solution and returns the coefficient vector
  */
 StringVal LinrFinalize(FunctionContext* context, const StringVal& input) {
-  if (input.len == 0) {
+  if (input.is_null) {
     // the UDA was run on an empty table
     StringVal sv;
-    //printf("Levae Final\n");
     return sv;
   }
 
@@ -111,15 +102,16 @@ StringVal LinrFinalize(FunctionContext* context, const StringVal& input) {
   // convert to types that MADlib expects
   madlib::MemHandle<char> state = {(size_t)input.len, (char*)input.ptr};
 
-  madlib::MemHandle<double> coef = 
+  madlib::MemHandle<double> coef =
       madlib::modules::regress::LinrFinal(pa, state);
 
   StringVal sv((uint8_t*) coef.ptr, coef.size*sizeof(double));
   return sv;
 }
 
-DoubleVal LinrPredict(FunctionContext* context, const StringVal& model, 
+DoubleVal LinrPredict(FunctionContext* context, const StringVal& model,
                         const StringVal& examp) {
+  if (model.is_null || examp.is_null) return DoubleVal::null();
   size_t len = model.len / sizeof(double);
   double pred = simple_dot(reinterpret_cast<double*>(model.ptr),
                            reinterpret_cast<double*>(examp.ptr),

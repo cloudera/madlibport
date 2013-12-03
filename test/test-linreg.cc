@@ -1,12 +1,11 @@
 
 #include <cstdio>
 
-#include "udf/uda-test-harness.h"
+#include <impala_udf/uda-test-harness.h>
 #include "madport/port-dbconnector-inl.h"
-#include "src/linreg-inl.h"
+#include "test-macros.h"
+#include "src/linreg.h"
 
-
-using namespace impala;
 using namespace impala_udf;
 using namespace std;
 
@@ -14,9 +13,9 @@ using namespace std;
  */
 int TEST_linreg() {
   UdaTestHarness2<StringVal, StringVal, StringVal, DoubleVal> test1(
-      madlib::impala::LinRegInit, madlib::impala::LinRegUpdate, 
-      madlib::impala::LinRegMerge, 
-      NULL, madlib::impala::LinRegFinalize);
+      LinrInit, LinrUpdate,
+      LinrMerge,
+      NULL, LinrFinalize);
   vector<StringVal> no_nulls;
   vector<DoubleVal> labels;
 
@@ -46,7 +45,7 @@ int TEST_linreg() {
 
 int TEST_linpred() {
   double coef[2] = {1.0, 2.0};
-  StringVal mod(coef, 2);
+  StringVal mod(reinterpret_cast<uint8_t*>(coef), sizeof(coef));
 
   vector<StringVal> ex;
   double ex1[3] = {1.0, 3.0};
@@ -60,16 +59,12 @@ int TEST_linpred() {
   ex[1].len = 2 * sizeof(double);
 
 
-
-  FAIL_IF(LinRegPredict(NULL, coef, ex[0]) != 7.0);
-  FAIL_IF(LinRegPredict(NULL, coef, ex[1]) != 19.0);
+  EXPECT_EQ(LinrPredict(NULL, mod, ex[0]) == DoubleVal(7.0), true);
+  EXPECT_EQ(LinrPredict(NULL, mod, ex[1]) == DoubleVal(19.0), true);
+  return 0;
 }
 
-
 int main(int argc, char** argv) {
-  //impala::InitGoogleLoggingSafe(argv[0]);
-//  ::testing::InitGoogleTest(&argc, argv);
-  //return RUN_ALL_TESTS();
   RUNTEST(TEST_linreg);
 }
 

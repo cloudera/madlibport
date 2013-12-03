@@ -1,7 +1,7 @@
 // port of MADlib to Imapala
 // author: victor bittorf (bittorf@cs.wisc.edu)
 
-#include <udf/udf.h>
+#include <impala_udf/udf.h>
 #include <assert.h>
 
 namespace madlib {
@@ -18,7 +18,7 @@ namespace dbconn {
  * should be used if the default constructor for PortAllocator is insufficient.
  */
 
-class PortAllocator { 
+class PortAllocator {
  public:
   static impala_udf::FunctionContext *fallback;
   /*! \brief Default constructor
@@ -32,7 +32,7 @@ class PortAllocator {
   /*! \brief Allocates a pointer, delegated to backing udf context
    * \param s number of bytes to allocate
    */
-  void* Allocate(size_t s) const { 
+  void* Allocate(size_t s) const {
     void* p;
     if (udfctx_ == NULL) {
       /* madlib may still use this path some how... */
@@ -44,10 +44,10 @@ class PortAllocator {
     //printf("(new %04lu) %lx\n", s, reinterpret_cast<uint64_t>(p));
     return p;
   }
-  
+
   /*! \brief Frees a pointer, delegated to backing udf context
    */
-  void Free(void*v) const { 
+  void Free(void*v) const {
     /*
     if (udfctx_ == NULL)
       printf(":: rogue free\n");
@@ -61,11 +61,11 @@ class PortAllocator {
     }
 
   // Do not use
-  void* Realloc(void* p, size_t s) const { 
+  void* Realloc(void* p, size_t s) const {
     printf("ERROR -- MADlib unexpectedly calling unimplemented reallocate.\n", reinterpret_cast<uint64_t>(p));
     assert(false);
-    return NULL; 
-  } 
+    return NULL;
+  }
 
  private:
   impala_udf::FunctionContext *udfctx_;

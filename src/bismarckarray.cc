@@ -2,10 +2,8 @@
 #ifndef HAZY_BISMARCK_ARRAY_H
 #define HAZY_BISMARCK_ARRAY_H
 
-#define IMPALA_UDF_SDK_BUILD 1
-
 #include <cstdio>
-#include "udf/udf.h"
+#include <impala_udf/udf.h>
 #include <string>
 #include <sstream>
 #include <iostream>

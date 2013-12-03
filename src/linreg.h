@@ -1,10 +1,10 @@
 #ifndef MADLIB_MODULES_IMPALA_LINREG_INL_H
+#define MADLIB_MODULES_IMPALA_LINREG_INL_H
+
 #include <cstdio>
 
-#include "udf/udf.h"
+#include <impala_udf/udf.h>
 
-
-using namespace impala;
 using namespace impala_udf;
 using namespace std;
 
@@ -14,7 +14,7 @@ void LinrInit(FunctionContext* context, StringVal* m);
 
 /*! \brief Updates the input state with the given value
  */
-void LinrUpdate(FunctionContext* context, const StringVal& val, 
+void LinrUpdate(FunctionContext* context, const StringVal& val,
                   const DoubleVal &y, StringVal* input);
 
 /*! Combines two linear regression states
@@ -23,7 +23,7 @@ void LinrMerge(FunctionContext* context, const StringVal& src, StringVal* dst);
 
 /*! \brief Computes the solution and returns the coefficient vector
  */
-StringVal LinrFinal(FunctionContext* context, const StringVal& input);
+StringVal LinrFinalize(FunctionContext* context, const StringVal& input);
 
 
 /*! \brief Uses the trained model (output from LinRegFinalize) to predict an ex
@@ -34,7 +34,7 @@ StringVal LinrFinal(FunctionContext* context, const StringVal& input);
  * \param examp a double array of the example vector to predict
  * \return the predicted label of the example
  */
-DoubleVal LinrPredict(FunctionContext* context, const StringVal& model, 
+DoubleVal LinrPredict(FunctionContext* context, const StringVal& model,
                         const StringVal& examp);
 
 

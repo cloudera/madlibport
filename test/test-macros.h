@@ -6,8 +6,8 @@
     else { printf("%-10s " # blah "\n", "FAIL**"); }
 
 #define EXPECT_EQ(a, b) \
-    if (a != b) { \
-      std::cout << "Expected (" # b ") " << b << "   got (" # a ") " << a << std::endl; \
+    if ((a) != (b)) { \
+      std::cout << "Expected (" # b ") " << (b) << "   got (" # a ") " << (a) << std::endl; \
       return 0; \
     }
 

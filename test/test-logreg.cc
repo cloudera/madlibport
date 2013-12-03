@@ -20,7 +20,7 @@ int TEST_Logrinit() {
   bismarck::bytea model;
   bismarck::BismarckLogr<void*>::Init(NULL, &model);
 
-  EXPECT_EQ(model.str, NULL);
+  EXPECT_EQ(model.str == NULL, true);
   EXPECT_EQ(model.len, 0);
   return 1;
 }
@@ -35,9 +35,9 @@ int TEST_LogrAlloc() {
   bismarck::bytea ex = {(char*)exa, 3*sizeof(double)};
 
   for (int k = 0; k < 100; k ++) {
-  bismarck::BismarckLogr<void*>::Step(NULL, ex, true, &model, 0.2);
-   }
-  EXPECT_NEAR(bismarck::LogrPredict<void*>(NULL, ex, model), 1.0, 0.05);
+    bismarck::BismarckLogr<void*>::Step(NULL, ex, true, &model, 0.2, 0);
+  }
+  EXPECT_NEAR(bismarck::_LogrPredict<void*>(NULL, ex, model), 1.0, 0.05);
   // next step shouldn't do anything since we use hinge loss
   return 1;
 }
