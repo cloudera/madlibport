@@ -85,7 +85,7 @@ def main():
   parser.add_option("-n", "--noact",
                     action="store_true", dest="noact", default=False,
                     help="just print queries, don't execute over impala")
-  parser.add_option("-o", "--path",
+  parser.add_option("-o", "--path", default='/user/cloudera/lib',
                     help="abs path (dir) on HDFS to put the shared objects")
 
   (options, args) = parser.parse_args()
@@ -101,15 +101,22 @@ def main():
   # put them into HDFS so impala can load them
   if options.put:
     for lb, tar in libs:
-      doit('hadoop fs -rm %s/%s' % (options.path, tar), mayfail=True)
-      doit('hadoop fs -put %s %s/%s' % (lb, options.path, tar))
+      doit('hadoop fs -rm %s' % os.path.join(options.path, tar), mayfail=True)
+      doit('hadoop fs -mkdir -p %s' % options.path)
+      doit('hadoop fs -put %s %s' % (lb, os.path.join(options.path, tar)))
 
   # register the functions with impala
-  queries = [q % options.path for q in queries]
+  bound_queries = []
   for q in queries:
-    print q
+    try:
+      bound_query = q % options.path
+      bound_queries.append(bound_query)
+      print bound_query
+    except TypeError:
+      bound_queries.append(q)
+      print q
   if not options.noact:
-    iutil.impala_shell_exec(queries, args[0])
+    iutil.impala_shell_exec(bound_queries, args[0])
 
 if __name__ == '__main__':
   main()
