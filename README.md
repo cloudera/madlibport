@@ -45,12 +45,14 @@ To run the example SVM,:
 
 1. Create database `toysvm`
 
-2. Register the UDFs with a database (without re-making the binaries), execute: `python python/deploy.py -mp toysvm`
+2. Run `make`.  If it fails with an error like `lib/libsvm.so: undefined reference to 'impala_udf::FunctionContext::Allocate(int)'`, it's ok.
 
-3. Create a synthetic table of examples in the database `toysvm` with the table `toy`: `python python/gen_classify_data.py toysvm toy`
+3. Register the UDFs with a database (without re-making the binaries), execute: `python python/deploy.py -p -o /path/for/libs toysvm`
 
-4. `python python/impala_svm.py lbl e0 e1 e2 --db toysvm --table toy -e 1`
+4. Create a synthetic table of examples in the database `toysvm` with the table `toy`: `python python/gen_classify_data.py toysvm toy`
 
-5. `impala-shell -q 'use toysvm; select iter, printarray(decodearray(model)) from history;'`
+5. `python python/impala_svm.py lbl e0 e1 e2 --db toysvm --table toy -e 1`
+
+6. `impala-shell -q 'use toysvm; select iter, printarray(decodearray(model)) from history;'`
 
 Also see example usage in the impyla repo.
