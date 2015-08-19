@@ -1,10 +1,10 @@
 EIGEN=/usr/include/eigen3/
 
-INCLUDES=-I$(EIGEN) -Imadlib/src -Imadlib/src/ports -Imadlib/src/ports/metaport -Isrc 
+INCLUDES=-I$(EIGEN) -Imadlib/src -Imadlib/src/ports -Imadlib/src/ports/metaport -Isrc
 
-TEST_LIBS=-lImpalaUdf -Llib
+TEST_LIBS=-lImpalaUdf -Llib -L$(IMPALA_HOME)/be/build/debug/udf
 
-all: directories lib/libbismarckarray.so lib/libsvm.so lib/liblogr.so lib/liblinr.so tests
+all: directories madlib tests
 
 tests: test_bin/svm_test test_bin/logreg_test test_bin/linreg_test
 
@@ -13,7 +13,7 @@ clean:
 	rm -rf ./lib
 	rm -rf ./test_bin
 
-.PHONY: directories 
+.PHONY: directories
 
 directories: objs lib test_bin
 
@@ -24,35 +24,42 @@ lib:
 test_bin:
 	mkdir -p test_bin
 
-lib/libbismarckarray.so: 
-	g++ -O3 -c -fPIC -o objs/bismarckarray.o src/bismarckarray.cc $(INCLUDES) 
+madlib: directories
+	g++ -O3 -c -fPIC -o objs/bismarckarray.o src/bismarckarray.cc $(INCLUDES)
+	g++ -O3 -c -fPIC -o objs/svm.o src/svm.cc $(INCLUDES)
+	g++ -O3 -c -fPIC -o objs/linr.o src/linreg.cc $(INCLUDES)
+	g++ -O3 -c -fPIC -o objs/logr.o src/logreg.cc $(INCLUDES)
+	g++ -O3 -shared -o lib/libmadlib_impala.so objs/svm.o objs/logr.o objs/linr.o objs/bismarckarray.o
+
+
+lib/libbismarckarray.so:
+	g++ -O3 -c -fPIC -o objs/bismarckarray.o src/bismarckarray.cc $(INCLUDES)
 	g++ -O3 -shared -o lib/libbismarckarray.so objs/bismarckarray.o
 
-lib/liblinr.so: 
-	g++ -O3 -c -fPIC -o objs/liblinr.o src/linreg.cc $(INCLUDES) 
+lib/liblinr.so:
+	g++ -O3 -c -fPIC -o objs/liblinr.o src/linreg.cc $(INCLUDES)
 	g++ -O3 -shared -o lib/liblinr.so objs/liblinr.o
 
 lib/libsvm.so:
-	g++ -O3 -c -fPIC -o objs/libsvm.o src/svm.cc $(INCLUDES) 
+	g++ -O3 -c -fPIC -o objs/libsvm.o src/svm.cc $(INCLUDES)
 	g++ -O3 -shared -o lib/libsvm.so objs/libsvm.o
 
 
 lib/liblogr.so:
-	g++ -O3 -c -fPIC -o objs/liblogr.o src/logreg.cc $(INCLUDES) 
+	g++ -O3 -c -fPIC -o objs/liblogr.o src/logreg.cc $(INCLUDES)
 	g++ -O3 -shared -o lib/liblogr.so objs/liblogr.o
 
 documentation:
 	doxygen doc/doxconf
 
-test_bin/logreg_test: 
-	g++ -I. -o test_bin/logreg_test test/test-logreg.cc -g -O0 $(INCLUDES) 
+test_bin/logreg_test:
+	g++ -I. -o test_bin/logreg_test test/test-logreg.cc -g -O0 $(INCLUDES)
 
-test_bin/svm_test: 
+test_bin/svm_test:
 	g++ -I. -o test_bin/svm_test test/test-svm.cc -g -O0 $(INCLUDES) -Wall $(TEST_LIBS) -lsvm
 
-test_bin/mf_test: 
-	g++ -I. -o test_bin/mf_test test/test-mf.cc -g -O0 $(INCLUDES) -Wall $(TEST_LIBS) 
+test_bin/mf_test:
+	g++ -I. -o test_bin/mf_test test/test-mf.cc -g -O0 $(INCLUDES) -Wall $(TEST_LIBS)
 
 test_bin/linreg_test:
 	g++ -I. -o test_bin/linreg_test test/test-linreg.cc -g -O0 $(INCLUDES) $(TEST_LIBS) -llinr
-

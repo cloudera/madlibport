@@ -96,5 +96,3 @@ DoubleVal LogrLoss(FunctionContext* ctx, const StringVal &model, const StringVal
   r.is_null = false;
   return r;
 }
-
-

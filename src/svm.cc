@@ -15,12 +15,14 @@ T* BismarckAllocate(FunctionContext* ctx, size_t len) {
 
 using namespace hazy::bismarck;
 
-bytea StringValToBytea(const StringVal &v) {
+
+bytea _svm_StringValToBytea(const StringVal &v) {
   bytea ba;
   ba.str = (char*) v.ptr;
   ba.len = v.len;
   return ba;
 }
+
 
 void SVMInit(FunctionContext* ctx, StringVal *model) {
   model->is_null = true;
@@ -41,9 +43,9 @@ void SVMUpdate(FunctionContext* ctx,  const StringVal &prev_model,
   }
 
   // Take the gradient step
-  bytea modela = StringValToBytea(*model);
+  bytea modela = _svm_StringValToBytea(*model);
   BismarckSVM<FunctionContext>::Step(ctx,
-                                     StringValToBytea(ex),
+                                     _svm_StringValToBytea(ex),
                                      label.val,
                                      &modela,
                                      step_size.val,
@@ -61,7 +63,7 @@ void SVMMerge(FunctionContext* ctx, const StringVal &src,
     memcpy(dst->ptr, src.ptr, src.len);
     dst->is_null = false;
   } else {
-    BismarckSVM<FunctionContext>::Merge(ctx, StringValToBytea(src), StringValToBytea(*dst));
+    BismarckSVM<FunctionContext>::Merge(ctx, _svm_StringValToBytea(src), _svm_StringValToBytea(*dst));
   }
 }
 
@@ -73,8 +75,8 @@ BooleanVal SVMPredict(FunctionContext* ctx, const StringVal &model, const String
   if (model.is_null || ex.is_null) return BooleanVal::null();
   BooleanVal r;
 
-  bytea mod = StringValToBytea(model);
-  bytea e = StringValToBytea(ex);
+  bytea mod = _svm_StringValToBytea(model);
+  bytea e = _svm_StringValToBytea(ex);
 
   r.val = _SVMPredict(ctx, e, mod);
   r.is_null = false;
@@ -85,8 +87,8 @@ DoubleVal SVMLoss(FunctionContext* ctx, const StringVal &model, const StringVal 
   if (model.is_null || ex.is_null || lbl.is_null) return DoubleVal::null();
   DoubleVal r;
 
-  bytea mod = StringValToBytea(model);
-  bytea e = StringValToBytea(ex);
+  bytea mod = _svm_StringValToBytea(model);
+  bytea e = _svm_StringValToBytea(ex);
 
   r.val = BismarckSVM<FunctionContext>::Loss(e, lbl.val, mod);
   r.is_null = false;
